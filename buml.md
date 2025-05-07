@@ -1,3 +1,4 @@
+```plantuml
 @startuml
 actor Vehicle
 
@@ -20,3 +21,4 @@ activate BillingService
 BillingService -> BillingService: Process update (log/update DB)
 deactivate BillingService
 @enduml
+```
