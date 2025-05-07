@@ -22,3 +22,25 @@ BillingService -> BillingService: Process update (log/update DB)
 deactivate BillingService
 @enduml
 ```
+```plantuml
+@startuml
+actor FleetManager as FM
+
+participant "Invoice Controller\n(REST-Server)" as InvoiceController
+participant RabbitMQ as "Message Broker\n(RabbitMQ)"
+participant "Billing Service" as BillingService
+
+FM -> InvoiceController: POST /api/invoices/{user-id}\n(Invoice Request)
+activate InvoiceController
+InvoiceController -> InvoiceController: Validate Fleet Manager Role
+InvoiceController -> RabbitMQ: Publish CreateInvoice message\n(with {user-id} details)
+deactivate InvoiceController
+note right of InvoiceController: Returns HTTP 200 OK to FM
+
+RabbitMQ -> BillingService: Deliver CreateInvoice message
+activate BillingService
+BillingService -> BillingService: Process invoice generation\n(Calculate & aggregate billing information)
+BillingService -> "Local File System": Store invoice text file\n(in /invoices directory)
+deactivate BillingService
+@enduml
+```
